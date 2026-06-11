@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Kiểm Tra Tiếng Anh Điện Tử</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #0b3c5d;
+            margin-bottom: 30px;
+        }
+        .question-block {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eef2f5;
+        }
+        .question-text {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #323232;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f8fafd;
+            border: 1px solid #dce4ec;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 15px;
+        }
+        .option-label:hover {
+            background-color: #f0f4f8;
+            border-color: #b0c4de;
+        }
+        .option-label input {
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #0b3c5d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 30px;
+        }
+        .btn-submit:hover {
+            background-color: #328cc1;
+        }
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h2 {
+            color: #0b3c5d;
+            margin-top: 0;
+        }
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #328cc1;
+            margin: 20px 0;
+        }
+        .level-badge {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #d9b310;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn-close {
+            padding: 10px 25px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-close:hover {
+            background-color: #555;
+        }
+        .correct-ans {
+            background-color: #e2f0d9 !important;
+            border-color: #b5e29a !important;
+        }
+        .wrong-ans {
+            background-color: #fce4d6 !important;
+            border-color: #f4b084 !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>English Placement Test</h1>
+    <form id="quiz-form">
+        <!-- Questions will be injected here by JS -->
+        <div id="questions-container"></div>
+        <button type="submit" class="btn-submit">Nộp bài & Xem kết quả</button>
+    </form>
+</div>
+
+<div id="result-modal">
+    <div class="modal-content">
+        <h2>Kết Quả Của Bạn</h2>
+        <div class="score-display" id="final-score">0/20</div>
+        <div>Trình độ ước lượng của bạn:</div>
+        <div class="level-badge" id="level-result">A1</div>
+        <p id="level-desc" style="color: #666; font-size: 14px; margin-bottom: 25px;"></p>
+        <button class="btn-close" onclick="closeModal()">Xem lại đáp án</button>
+    </div>
+</div>
+
+<script>
+    const questions = [{'id': 1, 'question': 'Jack is an engineer. He ___ machines.', 'options': ['does design', 'design', 'designs'], 'answer': 2, 'key_text': 'C. designs'}, {'id': 2, 'question': 'At the moment he ___ on a new project.', 'options': ["'s working", 'works', 'working'], 'answer': 0, 'key_text': "A. 's working"}, {'id': 3, 'question': 'Is there ___ fruit in the fridge?', 'options': ['any', 'a', 'some'], 'answer': 0, 'key_text': 'A. any'}, {'id': 4, 'question': 'Yes, there are ___ apples.', 'options': ['a few', 'an', 'a lot'], 'answer': 0, 'key_text': 'A. a few'}, {'id': 5, 'question': '___ I have some water please?', 'options': ['Could', 'Do', 'Will'], 'answer': 0, 'key_text': 'A. could'}, {'id': 6, 'question': "We need a catchy name for our brand. Let's get a few people together and ___ a name.", 'options': ['say', 'create', 'brainstorm'], 'answer': 2, 'key_text': 'C. brainstorm'}, {'id': 7, 'question': 'Let me ___ Mr. Smith.', 'options': ['show you', 'present you', 'introduce you to'], 'answer': 2, 'key_text': 'C. introduce you to'}, {'id': 8, 'question': 'Can you give me your number? Sure, here is my ___.', 'options': ['card of business', 'business card', 'visiting card'], 'answer': 1, 'key_text': 'B. business card'}, {'id': 9, 'question': 'He ___ since 2007.', 'options': ['works', "'s worked", 'worked'], 'answer': 1, 'key_text': "B. 's worked"}, {'id': 10, 'question': '___ me ___ my sister has blond hair.', 'options': ['Neither ... nor', 'Both ... and', 'Either ... or'], 'answer': 1, 'key_text': 'B. Both....and'}, {'id': 11, 'question': 'We ___ out every Saturday but now we prefer to stay in.', 'options': ['used to go', 'use to went', 'use to go'], 'answer': 0, 'key_text': 'A. used to go'}, {'id': 12, 'question': 'She ___ an email when the phone ___.', 'options': ['wrote ... was ringing', 'wrote ... rang', 'was writing ... rang'], 'answer': 2, 'key_text': 'C. was writing...rang'}, {'id': 13, 'question': 'What ___ the weather ___ there?', 'options': ['does ... like', 'look ... like', "'s ... like"], 'answer': 0, 'key_text': 'A. does...like'}, {'id': 14, 'question': 'Terrible. It ___ for hours.', 'options': ['rains', "'s raining", "'s been raining"], 'answer': 2, 'key_text': "C. 's been raining"}, {'id': 15, 'question': "I'm looking forward to opening them. - ___.", 'options': ['Neither am I', 'I too', 'So am I'], 'answer': 2, 'key_text': 'C. So am I'}, {'id': 16, 'question': '"I\'ll be there at 3pm." - Alina said she ___ here at 7:30.', 'options': ['was', 'would be', 'will be'], 'answer': 1, 'key_text': 'B. would be'}, {'id': 17, 'question': 'You ___ be here an hour ago! Where have you been?', 'options': ['were supposed to', 'were to', 'should'], 'answer': 0, 'key_text': 'A. were supposed to'}, {'id': 18, 'question': 'Sorry. I ___ phoned you.', 'options': ['must have', 'may have', 'should have'], 'answer': 2, 'key_text': 'C. should have'}, {'id': 19, 'question': "I've run out of money. - Don't worry. I ___ you some.", 'options': ["'ll lend", 'lend', "'m lending"], 'answer': 0, 'key_text': "A. I'll lend"}, {'id': 20, 'question': "I'm fed up with Carlo. He ___ money and never pays it back.", 'options': ["'s always borrowing", 'always borrows', "'s always borrows"], 'answer': 0, 'key_text': "A. 's always borrowing"}];
+
+    function renderQuiz() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = questions.map((q, index) => {
+            const prefix = ['A', 'B', 'C', 'D'];
+            return `
+                <div class="question-block" id="q-block-${index}">
+                    <div class="question-text">Câu ${index + 1}: ${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, oIdx) => `
+                            <label class="option-label" id="label-${index}-${oIdx}">
+                                <input type="radio" name="question-${index}" value="${oIdx}" required>
+                                ${prefix[oIdx]}. ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let score = 0;
+        
+        questions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+            const block = document.getElementById(`q-block-${index}`);
+            
+            // Reset styles
+            q.options.forEach((_, oIdx) => {
+                document.getElementById(`label-${index}-${oIdx}`).classList.remove('correct-ans', 'wrong-ans');
+            });
+
+            if (selected) {
+                const userAns = parseInt(selected.value);
+                if (userAns === q.answer) {
+                    score++;
+                    document.getElementById(`label-${index}-${userAns}`).classList.add('correct-ans');
+                } else {
+                    document.getElementById(`label-${index}-${userAns}`).classList.add('wrong-ans');
+                    document.getElementById(`label-${index}-${q.answer}`).classList.add('correct-ans');
+                }
+            }
+        });
+
+        // Tính trình độ theo bảng quy đổi
+        let level = "A1";
+        let desc = "";
+        if (score <= 5) { level = "A1"; desc = "Trình độ Sơ cấp (Beginner)"; }
+        else if (score <= 9) { level = "A2"; desc = "Trình độ Sơ trung cấp (Elementary)"; }
+        else if (score <= 13) { level = "B1"; desc = "Trình độ Trung cấp (Intermediate)"; }
+        else if (score <= 17) { level = "B2"; desc = "Trình độ Trên trung cấp (Upper-Intermediate)"; }
+        else { level = "B2 plus"; desc = "Trình độ Cao cấp / Tiền cao cấp (Advanced / Pre-Advanced)"; }
+
+        document.getElementById('final-score').innerText = score + "/20";
+        document.getElementById('level-result').innerText = level;
+        document.getElementById('level-desc').innerText = desc;
+        
+        document.getElementById('result-modal').style.display = 'flex';
+    });
+
+    function closeModal() {
+        document.getElementById('result-modal').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Khởi chạy
+    renderQuiz();
+</script>
+
+</body>
+</html>
